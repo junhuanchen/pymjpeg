@@ -7,8 +7,9 @@ def request_headers():
         'Cache-Control': 'no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0',
         'Connection': 'close',
         'Content-Type': 'multipart/x-mixed-replace;boundary=%s' % boundary,
-        'Expires': 'Mon, 3 Jan 2000 12:34:56 GMT',
+        'Expires': 'Mon, 1 Jan 2030 00:00:00 GMT',
         'Pragma': 'no-cache',
+		'Access-Control-Allow-Origin': '*' # CORS
     }
 
 def image_headers(filename):
