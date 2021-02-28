@@ -32,7 +32,10 @@ class MyHandler(BaseHTTPRequestHandler):
             # Part binary
             # logging.debug('GET response image: ' + filename)
             for chunk in pymjpeg.image(filename):
-                self.wfile.write(chunk)
+                try:
+                    self.wfile.write(chunk)
+                except (ConnectionResetError, ConnectionAbortedError):
+                    return
     def log_message(self, format, *args):
         return
 
