@@ -1,4 +1,5 @@
 import os, time
+from abc import abstractmethod
 
 boundary = '--boundarydonotcross'
 
@@ -12,20 +13,54 @@ def request_headers():
 		'Access-Control-Allow-Origin': '*' # CORS
     }
 
-def image_headers(filename):
-    return {
-        'X-Timestamp': time.time(),
-        'Content-Length': os.path.getsize(filename),
-        #FIXME: mime-type must be set according file content
-        'Content-Type': 'image/jpeg',
-    }
 
-# FIXME: should take a binary stream
-def image(filename):
-    with open(filename, "rb") as f:
-        # for byte in f.read(1) while/if byte ?
-        byte = f.read(1)
-        while byte:
-            yield byte
-            # Next byte
+class Image:
+    def image_headers(self, mimetype='image/jpeg'):
+        return {
+            'X-Timestamp': time.time(),
+            'Content-Length': self.get_content_length(),
+            'Content-Type': mimetype,
+        }
+    @abstractmethod
+    def get_content_length(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_byte_generator(self):
+        raise NotImplementedError()
+
+
+class FileImage(Image):
+    def __init__(self, filename):
+        self.filename = filename
+
+    def image_headers(self):
+        ext = self.filename.split('.')[-1].lower()
+        if ext in ('jpg', 'jpeg'):
+            return super().image_headers(mimetype='image/jpeg')
+        else:
+            raise NotImplementedError("Only implemented for jpeg for now")
+
+    def get_content_length(self):
+        return os.path.getsize(self.filename)
+
+    def get_byte_generator(self):
+        with open(self.filename, "rb") as f:
+            # for byte in f.read(1) while/if byte ?
             byte = f.read(1)
+            while byte:
+                yield byte
+                # Next byte
+                byte = f.read(1)
+
+
+class BytesImage(Image):
+    def __init__(self, bytes: list):
+        self.bytes = bytes
+
+    def get_content_length(self):
+        return len(self.bytes)
+
+    def get_byte_generator(self):
+        for byte in self.bytes:
+            yield byte
