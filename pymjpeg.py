@@ -1,7 +1,9 @@
 import os, time
+import struct
 from abc import abstractmethod
 
 boundary = '--boundarydonotcross'
+
 
 def request_headers():
     return {
@@ -10,7 +12,7 @@ def request_headers():
         'Content-Type': 'multipart/x-mixed-replace;boundary=%s' % boundary,
         'Expires': 'Mon, 1 Jan 2030 00:00:00 GMT',
         'Pragma': 'no-cache',
-		'Access-Control-Allow-Origin': '*' # CORS
+        'Access-Control-Allow-Origin': '*' # CORS
     }
 
 
@@ -21,12 +23,19 @@ class Image:
             'Content-Length': self.get_content_length(),
             'Content-Type': mimetype,
         }
+
     @abstractmethod
     def get_content_length(self):
+        """
+        :return: integer number of bytes
+        """
         raise NotImplementedError()
 
     @abstractmethod
     def get_byte_generator(self):
+        """
+        :return: generator of binary strings (chunks)
+        """
         raise NotImplementedError()
 
 
@@ -46,12 +55,7 @@ class FileImage(Image):
 
     def get_byte_generator(self):
         with open(self.filename, "rb") as f:
-            # for byte in f.read(1) while/if byte ?
-            byte = f.read(1)
-            while byte:
-                yield byte
-                # Next byte
-                byte = f.read(1)
+            yield f.read()
 
 
 class BytesImage(Image):
@@ -62,5 +66,4 @@ class BytesImage(Image):
         return len(self.bytes)
 
     def get_byte_generator(self):
-        for byte in self.bytes:
-            yield byte
+        yield self.bytes
