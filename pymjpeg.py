@@ -1,5 +1,5 @@
-import os, time
-import struct
+import os
+import time
 from abc import abstractmethod
 
 boundary = '--boundarydonotcross'

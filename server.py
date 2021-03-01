@@ -1,12 +1,9 @@
 # FIXME: Make a Python Unit test
+import logging
 import queue
 import socket
 import time
-
 from glob import glob
-import sys
-import logging
-
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from threading import Thread
 
